@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>HAMZAH.CORP STORE</title>
+
+<style>
+/* ===== THEME ===== */
+:root{
+  --bg:#05000b;
+  --panel:#12001f;
+  --panel2:#0b0014;
+  --neon:#e14cff;        /* ungu neon CERAH */
+  --neon2:#9b3cff;
+  --soft:rgba(225,76,255,.35);
+  --text:#f6ebff;
+  --muted:#caa9ff;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:"Times New Roman", Times, serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* background cyber lembut */
+body::before{
+  content:"";position:fixed;inset:-20%;
+  background:
+    radial-gradient(900px 420px at 50% -10%, #3d0a6a, transparent 60%),
+    radial-gradient(700px 380px at 10% 90%, #2b0a4a, transparent 60%),
+    url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity:.14;pointer-events:none;
+}
+
+/* ===== HEADER ===== */
+header{padding:18px 16px;text-align:center}
+header img{width:300px;display:block;margin:0 auto 6px}
+header h1{letter-spacing:4px;margin:0}
+
+/* ===== NAV ===== */
+nav{
+  position:sticky;top:0;z-index:5;
+  display:flex;gap:10px;justify-content:center;
+  padding:10px;background:rgba(10,0,20,.65);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--soft)
+}
+nav button{
+  border:none;border-radius:999px;padding:8px 16px;
+  color:white;cursor:pointer;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  box-shadow:0 0 16px rgba(225,76,255,.45)
+}
+nav button.secondary{background:transparent;border:1px solid var(--soft);box-shadow:none}
+
+/* ===== PAGES ===== */
+main{height:calc(100vh - 140px)}
+.page{display:none;height:100%}
+.page.active{display:block}
+
+/* ===== PRODUCTS ===== */
+#products{
+  padding:14px;display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  height:100%;overflow:auto
+}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border-radius:22px;padding:12px;
+  box-shadow:0 0 0 1px var(--soft);
+  transition:.25s
+}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;height:140px;object-fit:cover;border-radius:16px}
+.card h3{margin:8px 0 4px}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.card .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+
+/* ===== BUTTONS ===== */
+.btn{
+  border:none;border-radius:999px;padding:8px 16px;cursor:pointer;color:white;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  box-shadow:0 0 18px rgba(225,76,255,.5)
+}
+.btn.ghost{background:transparent;border:1px solid var(--soft);box-shadow:none}
+.btn.small{padding:6px 12px}
+
+/* ===== CART ===== */
+#cartSheet{
+  position:fixed;left:0;right:0;bottom:-100%;
+  height:62%;z-index:10;
+  background:linear-gradient(180deg,#22003a,#060010);
+  border-radius:30px 30px 0 0;padding:18px;
+  transition:.6s cubic-bezier(.2,.8,.2,1)
+}
+#cartSheet.show{bottom:0}
+#cartList{max-height:50%;overflow:auto}
+
+/* ===== MODAL ===== */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:20}
+.modal.show{display:flex}
+.box{
+  width:92%;max-width:460px;border-radius:26px;padding:18px;
+  background:linear-gradient(180deg,#26003f,#090013);
+  animation:pop .55s cubic-bezier(.2,.8,.2,1)
+}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.box h3{margin-top:0}
+
+/* ===== FORMS ===== */
+input,textarea,select{
+  width:100%;margin:6px 0;padding:8px;border-radius:10px;
+  background:#160026;border:1px solid var(--soft);color:white
+}
+
+/* ===== STATUS ===== */
+.status div{opacity:.35;margin:6px 0;transition:.35s}
+.status .active{opacity:1;color:#f2d8ff}
+
+/* ===== ADMIN ===== */
+#adminWrap{display:grid;grid-template-columns:1fr;gap:10px;height:100%}
+#adminLists{max-height:45%;overflow:auto}
+
+/* ===== FOOTER BAR ===== */
+#bottom{
+  position:fixed;bottom:0;left:0;right:0;z-index:6;
+  display:flex;justify-content:space-around;gap:8px;padding:10px;
+  background:rgba(10,0,20,.8);backdrop-filter:blur(12px);
+  border-top:1px solid var(--soft)
+}
+.icon{width:20px;vertical-align:middle}
+.link{color:var(--muted);text-decoration:none}
+</style>
+</head>
+
+<body>
+<header>
+  <img src="https://e.top4top.io/p_3689lmycs0.png" alt="logo">
+  <h1>HAMZAH.CORP STORE</h1>
+</header>
+
+<nav>
+  <button onclick="showPage('pProducts')">Produk</button>
+  <button class="secondary" onclick="showPage('pPay')">Pembayaran</button>
+  <button class="secondary" onclick="showPage('pHistory')">History</button>
+  <button class="secondary" onclick="openAdmin()">Admin</button>
+</nav>
+
+<main>
+  <!-- PRODUK -->
+  <section id="pProducts" class="page active">
+    <div id="products"></div>
+  </section>
+
+  <!-- PEMBAYARAN -->
+  <section id="pPay" class="page">
+    <div style="padding:16px;max-width:620px;margin:auto">
+      <h3>Cara Pembayaran / Payment Guide</h3>
+      <p><b>Indonesia:</b><br>salin alamat dan Transfer sesuai total. Upload bukti pembayaran. Produk dikirim ±5–10 menit.</p>
+      <p><b>English:</b><br>Copy the address and transfer the total. Upload proof of payment. The product will be shipped within 5–10 minutes.</p>
+
+      <p><img class="icon" src="https://cryptologos.cc/logos/ethereum-eth-logo.png"> ETH:
+        <span onclick="copy(this)">0x81830DF553d62bE793c3E7dC0184d8F3728b33F3</span></p>
+      <p><img class="icon" src="https://cryptologos.cc/logos/bitcoin-btc-logo.png"> BTC:
+        <span onclick="copy(this)">bc1qvd00grpp3kea4nlgexvv7ktam62fv9lepfyt6w</span></p>
+
+      <button class="btn" onclick="openCheckout()">Upload Bukti Pembayaran</button>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="pHistory" class="page">
+    <div style="padding:16px;max-width:720px;margin:auto">
+      <h3>History Pelanggan</h3>
+      <div id="historyList"></div>
+    </div>
+  </section>
+</main>
+
+<!-- CART SHEET -->
+<div id="cartSheet">
+  <h3>Keranjang</h3>
+  <div id="cartList"></div>
+  <p><b>Total:</b> $<span id="cartTotal">0</span></p>
+  <button class="btn" onclick="openCheckout()">Checkout</button>
+  <button class="btn ghost" onclick="toggleCart()">Tutup</button>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkout" class="modal">
+  <div class="box">
+    <h3>Upload Bukti Pembayaran</h3>
+    <input type="file" id="proof">
+    <div class="status">
+      <div id="s1">🟡 Menunggu admin online</div>
+      <div id="s2">💰 Pembayaran diterima</div>
+      <div id="s3">📦 Menyiapkan produk</div>
+      <div id="s4">✅ Produk terkirim</div>
+    </div>
+    <button class="btn" onclick="submitOrder()">Kirim</button>
+    <button class="btn ghost" onclick="closeCheckout()">Tutup</button>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div id="admin" class="modal">
+  <div class="box" style="max-width:720px">
+    <div id="loginBox">
+      <h3>Admin Login</h3>
+      <input id="au" placeholder="Username">
+      <input id="ap" type="password" placeholder="Password">
+      <button class="btn" onclick="loginAdmin()">Login</button>
+    </div>
+
+    <div id="adminPanel" style="display:none">
+      <h3>Admin Panel</h3>
+      <div id="adminWrap">
+        <div>
+          <h4>Tambah / Edit Produk</h4>
+          <input id="pName" placeholder="Nama Produk">
+          <textarea id="pDesc" placeholder="Deskripsi"></textarea>
+          <input id="pPrice" type="number" placeholder="Harga USD">
+          <input id="pStock" type="number" placeholder="Stok">
+          <input id="pImg" type="file">
+          <button class="btn small" onclick="saveProduct()">Simpan</button>
+        </div>
+        <div>
+          <h4>Daftar Produk</h4>
+          <div id="adminLists"></div>
+        </div>
+      </div>
+      <button class="btn ghost" onclick="closeAdmin()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottom">
+  <button class="btn small" onclick="toggleCart()">Keranjang</button>
+  <a class="link" href="https://t.me/" target="_blank">
+    <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"> Telegram
+  </a>
+  <a class="link" href="https://x.com/" target="_blank">
+    <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg"> X
+  </a>
+</div>
+
+<script>
+/* ===== STATE ===== */
+const LS = localStorage;
+let products = JSON.parse(LS.getItem('products')) || [
+  {id:Date.now(),name:"Produk Digital A",desc:"Deskripsi singkat",price:10,stock:99,img:"https://picsum.photos/400/240?1"}
+];
+let cart = JSON.parse(LS.getItem('cart')) || [];
+let history = JSON.parse(LS.getItem('history')) || [];
+let editId = null;
+
+/* ===== NAV ===== */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ===== PRODUCTS ===== */
+const productsBox=document.getElementById('products');
+function renderProducts(){
+  productsBox.innerHTML="";
+  products.forEach(p=>{
+    productsBox.innerHTML+=`
+    <div class="card">
+      <img src="${p.img}">
+      <h3>${p.name}</h3>
+      <p>${p.desc}</p>
+      <div class="row">
+        <b>$${p.price}</b>
+        <button class="btn small" onclick="addCart(${p.id})">Tambah</button>
+      </div>
+    </div>`;
+  });
+}
+renderProducts();
+
+/* ===== CART ===== */
+function addCart(id){
+  const p=products.find(x=>x.id===id);
+  if(!p||p.stock<=0) return alert("Stok habis");
+  cart.push(p); p.stock--;
+  save(); renderProducts(); toggleCart(true);
+}
+function renderCart(){
+  let t=0; const list=document.getElementById('cartList'); list.innerHTML="";
+  cart.forEach(p=>{t+=p.price; list.innerHTML+=`<p>${p.name} - $${p.price}</p>`});
+  document.getElementById('cartTotal').textContent=t;
+}
+function toggleCart(force){
+  const cs=document.getElementById('cartSheet');
+  force===true?cs.classList.add('show'):cs.classList.toggle('show');
+  renderCart();
+}
+
+/* ===== CHECKOUT ===== */
+function openCheckout(){document.getElementById('checkout').classList.add('show')}
+function closeCheckout(){document.getElementById('checkout').classList.remove('show')}
+function submitOrder(){
+  if(!cart.length) return alert("Keranjang kosong");
+  history.push({id:Date.now(),items:[...cart],total:cart.reduce((a,b)=>a+b.price,0),status:0});
+  cart=[]; save(); startStatus(); renderHistory();
+}
+function startStatus(){
+  ['s1','s2','s3','s4'].forEach(i=>document.getElementById(i).classList.remove('active'));
+  setTimeout(()=>s1.classList.add('active'),400);
+  setTimeout(()=>s2.classList.add('active'),1800);
+  setTimeout(()=>s3.classList.add('active'),3600);
+  setTimeout(()=>s4.classList.add('active'),6500);
+}
+
+/* ===== HISTORY ===== */
+function renderHistory(){
+  const hl=document.getElementById('historyList'); hl.innerHTML="";
+  history.forEach(h=>{
+    hl.innerHTML+=`<div class="card"><b>Total:</b> $${h.total}<br>Items: ${h.items.length}</div>`;
+  });
+}
+renderHistory();
+
+/* ===== ADMIN ===== */
+function openAdmin(){document.getElementById('admin').classList.add('show')}
+function closeAdmin(){document.getElementById('admin').classList.remove('show')}
+function loginAdmin(){
+  if(au.value==="Retaabi21" && ap.value==="Retaabi21"){
+    loginBox.style.display="none"; adminPanel.style.display="block"; renderAdminList();
+  } else alert("Login gagal");
+}
+function saveProduct(){
+  const file=pImg.files[0];
+  const reader=new FileReader();
+  reader.onload=()=>{
+    if(editId){
+      const p=products.find(x=>x.id===editId);
+      Object.assign(p,{name:pName.value,desc:pDesc.value,price:+pPrice.value,stock:+pStock.value,img:reader.result||p.img});
+      editId=null;
+    }else{
+      products.push({id:Date.now(),name:pName.value,desc:pDesc.value,price:+pPrice.value,stock:+pStock.value,img:reader.result});
+    }
+    save(); renderProducts(); renderAdminList();
+  };
+  file?reader.readAsDataURL(file):reader.onload();
+}
+function renderAdminList(){
+  const al=document.getElementById('adminLists'); al.innerHTML="";
+  products.forEach(p=>{
+    al.innerHTML+=`
+    <div class="card">
+      <b>${p.name}</b> ($${p.price}) stok:${p.stock}
+      <div class="row">
+        <button class="btn small" onclick="edit(${p.id})">Edit</button>
+        <button class="btn small ghost" onclick="del(${p.id})">Hapus</button>
+      </div>
+    </div>`;
+  });
+}
+function edit(id){
+  const p=products.find(x=>x.id===id); editId=id;
+  pName.value=p.name; pDesc.value=p.desc; pPrice.value=p.price; pStock.value=p.stock;
+}
+function del(id){products=products.filter(p=>p.id!==id); save(); renderProducts(); renderAdminList();}
+
+/* ===== UTIL ===== */
+function save(){LS.setItem('products',JSON.stringify(products));LS.setItem('cart',JSON.stringify(cart));LS.setItem('history',JSON.stringify(history));}
+function copy(el){navigator.clipboard.writeText(el.textContent); alert("Address copied");}
+</script>
+</body>
+</html>
